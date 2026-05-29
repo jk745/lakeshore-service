@@ -435,6 +435,129 @@
   }
 
   @keyframes toastIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* CLEAN MODAL */
+  .clean-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 400;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .clean-modal-overlay.show { display: flex; }
+  .clean-modal {
+    background: var(--card);
+    border: 1px solid rgba(217,107,107,0.25);
+    border-radius: 16px;
+    padding: 28px;
+    width: 380px;
+    max-width: 90vw;
+    animation: modalIn 0.2s ease;
+  }
+  .clean-modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: var(--danger);
+    margin-bottom: 6px;
+  }
+  .clean-modal-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .days-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .days-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .days-btn:hover { background: rgba(217,107,107,0.08); color: var(--text); }
+  .days-btn.selected {
+    background: rgba(217,107,107,0.15);
+    border-color: rgba(217,107,107,0.4);
+    color: var(--danger);
+  }
+  .days-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .days-custom-row label { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .days-custom-input {
+    width: 80px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Cormorant Garamond', serif;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+  .days-custom-input:focus { border-color: rgba(217,107,107,0.4); }
+  .clean-preview {
+    background: rgba(217,107,107,0.06);
+    border: 1px solid rgba(217,107,107,0.15);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    min-height: 40px;
+    line-height: 1.7;
+  }
+  .clean-preview .count { color: var(--danger); font-weight: 500; font-size: 14px; }
+  .clean-actions { display: flex; gap: 8px; }
+  .clean-btn-cancel {
+    flex: 1; padding: 11px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: inherit; font-size: 13px; cursor: pointer;
+  }
+  .clean-btn-confirm {
+    flex: 2; padding: 11px; border-radius: 8px;
+    background: rgba(217,107,107,0.15); border: 1px solid rgba(217,107,107,0.3);
+    color: var(--danger); font-family: inherit; font-size: 13px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .clean-btn-confirm:hover { background: rgba(217,107,107,0.25); }
+  .clean-btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* TOPBAR 清除按鈕 */
+  .clean-records-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--danger-dim);
+    border: 1px solid rgba(217,107,107,0.3);
+    color: var(--danger);
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .clean-records-btn:hover { background: rgba(217,107,107,0.2); }
 </style>
 </head>
 <body>
@@ -447,7 +570,10 @@
     </div>
     <div class="page-badge">備品管理後台</div>
   </div>
-  <div class="save-status" id="saveStatus">所有變更即時儲存</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="clean-records-btn" onclick="openCleanModal()">🗑 清除舊記錄</button>
+    <div class="save-status" id="saveStatus">所有變更即時儲存</div>
+  </div>
 </div>
 
 <div class="layout">
@@ -461,6 +587,43 @@
     <div class="empty-main">
       <div class="icon">📋</div>
       <div>請從左側選擇一個分類進行編輯</div>
+    </div>
+  </div>
+</div>
+
+<!-- Clean Records Modal -->
+<div class="clean-modal-overlay" id="cleanModal">
+  <div class="clean-modal">
+    <div class="clean-modal-title">🗑 清除舊記錄</div>
+    <div class="clean-modal-sub">
+      將刪除指定天數以前、狀態為「已完成」的服務單。<br>
+      <strong style="color:var(--danger)">此操作無法還原</strong>，建議清除前先下載記錄備份。
+    </div>
+
+    <div class="days-selector">
+      <button class="days-btn" onclick="selectDays(7)">7 天前</button>
+      <button class="days-btn" onclick="selectDays(14)">14 天前</button>
+      <button class="days-btn selected" onclick="selectDays(30)">30 天前</button>
+      <button class="days-btn" onclick="selectDays(60)">60 天前</button>
+    </div>
+
+    <div class="days-custom-row">
+      <label>自訂天數：</label>
+      <input type="number" class="days-custom-input" id="customDaysInput"
+        min="1" max="365" placeholder="30"
+        oninput="onCustomDaysInput(this.value)">
+      <span style="font-size:12px;color:var(--text-dim)">天前的已完成記錄</span>
+    </div>
+
+    <div class="clean-preview" id="cleanPreview">
+      正在計算…
+    </div>
+
+    <div class="clean-actions">
+      <button class="clean-btn-cancel" onclick="closeCleanModal()">取消</button>
+      <button class="clean-btn-confirm" id="cleanConfirmBtn" onclick="doCleanRecords()" disabled>
+        確認清除
+      </button>
     </div>
   </div>
 </div>
@@ -495,7 +658,7 @@
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, remove, push, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCFDq7PjC5j--bnHJ9SBglao4_avOCEge8",
@@ -731,6 +894,99 @@ function showToast(msg) {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2500);
 }
+
+// ── Clean Records ───────────────────────────────────────
+let cleanDays = 30;
+let cleanTargetKeys = [];
+
+window.openCleanModal = function() {
+  cleanDays = 30;
+  document.getElementById('customDaysInput').value = '';
+  // 預設選中 30 天
+  document.querySelectorAll('.days-btn').forEach(b => {
+    b.classList.toggle('selected', b.textContent.includes('30'));
+  });
+  calcCleanPreview();
+  document.getElementById('cleanModal').classList.add('show');
+};
+
+window.closeCleanModal = function() {
+  document.getElementById('cleanModal').classList.remove('show');
+};
+
+window.selectDays = function(days) {
+  cleanDays = days;
+  document.getElementById('customDaysInput').value = '';
+  document.querySelectorAll('.days-btn').forEach(b => {
+    b.classList.toggle('selected', b.textContent.includes(days + ' '));
+  });
+  calcCleanPreview();
+};
+
+window.onCustomDaysInput = function(val) {
+  const n = parseInt(val);
+  if (!isNaN(n) && n > 0) {
+    cleanDays = n;
+    document.querySelectorAll('.days-btn').forEach(b => b.classList.remove('selected'));
+    calcCleanPreview();
+  }
+};
+
+function calcCleanPreview() {
+  const cutoff = Date.now() - cleanDays * 24 * 60 * 60 * 1000;
+  const preview = document.getElementById('cleanPreview');
+  const confirmBtn = document.getElementById('cleanConfirmBtn');
+
+  get(ref(db, 'requests')).then(snap => {
+    if (!snap.exists()) {
+      cleanTargetKeys = [];
+      preview.innerHTML = '目前沒有任何服務記錄。';
+      confirmBtn.disabled = true;
+      return;
+    }
+    const all = snap.val();
+    cleanTargetKeys = Object.entries(all)
+      .filter(([, r]) => r.status === 'done' && r.createdAt < cutoff)
+      .map(([k]) => k);
+
+    const cutoffDate = new Date(cutoff).toLocaleDateString('zh-TW');
+
+    if (cleanTargetKeys.length === 0) {
+      preview.innerHTML = `${cutoffDate} 以前沒有已完成的記錄可清除。`;
+      confirmBtn.disabled = true;
+    } else {
+      preview.innerHTML = `將清除 <span class="count">${cleanTargetKeys.length} 筆</span> 已完成記錄<br>（${cutoffDate} 以前，即 ${cleanDays} 天前）`;
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = `確認清除 ${cleanTargetKeys.length} 筆`;
+    }
+  }).catch(() => {
+    preview.innerHTML = '無法讀取記錄，請確認 Firebase 連線。';
+    confirmBtn.disabled = true;
+  });
+}
+
+window.doCleanRecords = function() {
+  if (!cleanTargetKeys.length) return;
+  if (!confirm(`確定要永久刪除 ${cleanTargetKeys.length} 筆已完成記錄？此操作無法還原。`)) return;
+
+  const confirmBtn = document.getElementById('cleanConfirmBtn');
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = '刪除中…';
+
+  const promises = cleanTargetKeys.map(key => remove(ref(db, 'requests/' + key)));
+
+  Promise.all(promises)
+    .then(() => {
+      closeCleanModal();
+      showToast('已清除 ' + cleanTargetKeys.length + ' 筆舊記錄');
+      cleanTargetKeys = [];
+    })
+    .catch(err => {
+      alert('清除失敗：' + err.message);
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = '確認清除';
+    });
+};
 </script>
 </body>
 </html>
