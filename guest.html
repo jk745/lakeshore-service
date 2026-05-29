@@ -940,6 +940,134 @@
     font-size: 13px;
   }
 
+  /* NOTICE MODAL */
+  .notice-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,8,5,0.85);
+    z-index: 160;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .notice-overlay.show { display: flex; animation: noticeBgIn 0.3s ease; }
+  @keyframes noticeBgIn { from { opacity:0; } to { opacity:1; } }
+
+  .notice-sheet {
+    background: #1E1912;
+    border-radius: 24px 24px 0 0;
+    padding: 28px 24px 40px;
+    width: 100%;
+    max-width: 520px;
+    border-top: 1px solid rgba(201,169,110,0.2);
+    animation: sheetUp 0.35s cubic-bezier(0.32,0.72,0,1);
+  }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .notice-handle {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .notice-icon {
+    font-size: 36px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .notice-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--gold);
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    font-weight: 400;
+  }
+
+  .notice-subtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    letter-spacing: 0.08em;
+    margin-bottom: 22px;
+  }
+
+  .notice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .notice-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 14px 14px;
+  }
+
+  .notice-item-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(201,169,110,0.15);
+    border: 1px solid rgba(201,169,110,0.3);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .notice-item-text {
+    font-size: 14px;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+
+  .notice-item-text strong {
+    color: #FFCA6E;
+  }
+
+  .notice-confirm-btn {
+    width: 100%;
+    background: var(--gold);
+    color: var(--deep);
+    border: none;
+    border-radius: 14px;
+    padding: 17px;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+  .notice-confirm-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+  .notice-cancel-btn {
+    width: 100%;
+    background: transparent;
+    color: rgba(255,255,255,0.3);
+    border: none;
+    padding: 14px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    margin-top: 4px;
+  }
+
   /* LOADING */
   .loading-overlay {
     display: none;
@@ -1182,6 +1310,19 @@
   </div>
 </div>
 
+<!-- NOTICE MODAL -->
+<div class="notice-overlay" id="noticeOverlay">
+  <div class="notice-sheet">
+    <div class="notice-handle"></div>
+    <div class="notice-icon">📋</div>
+    <div class="notice-title" id="noticeTitle">送出前請注意</div>
+    <div class="notice-subtitle" id="noticeSubtitle">Please read before submitting</div>
+    <div class="notice-list" id="noticeList"></div>
+    <button class="notice-confirm-btn" id="noticeConfirmBtn" onclick="confirmAndSubmit()"></button>
+    <button class="notice-cancel-btn" onclick="closeNotice()"></button>
+  </div>
+</div>
+
 <!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 
@@ -1246,6 +1387,15 @@ const i18n = {
     timelineWaitProcessing: '等待派員服務',
     timelineWaitDone: '等待完成',
     summaryText: (n, items) => `已選 ${n} 項：${items}`,
+    noticeTitle: '送出前請注意',
+    noticeSubtitle: '請確認以下事項後再送出需求',
+    noticeItems: [
+      '請確認房門燈號「<strong>請勿打擾</strong>」未亮起，否則服務人員將無法進入房間送達備品。',
+      '若服務人員抵達時房內<strong>無人</strong>，本次服務將自動取消，如有需要請重新提出申請。',
+      '部分備品<strong>數量有限</strong>，若您所需備品暫時無法提供，服務人員將致電通知您。'
+    ],
+    noticeConfirm: '我已了解，送出需求',
+    noticeCancel: '返回修改',
   },
   en: {
     serviceHeading: 'Room Service',
@@ -1288,6 +1438,15 @@ const i18n = {
     timelineWaitProcessing: 'Awaiting staff assignment',
     timelineWaitDone: 'Awaiting completion',
     summaryText: (n, items) => `${n} item(s): ${items}`,
+    noticeTitle: 'Before You Submit',
+    noticeSubtitle: 'Please read the following carefully',
+    noticeItems: [
+      'Please ensure the <strong>"Do Not Disturb"</strong> light on your door is off. If it remains on, our staff will be unable to enter and deliver your request.',
+      'If no one is in the room upon our staff's arrival, the service will be <strong>automatically cancelled</strong>. Please submit a new request if needed.',
+      'Some items are subject to <strong>limited availability</strong>. If any requested item cannot be provided, our staff will contact you by phone.'
+    ],
+    noticeConfirm: 'I Understand — Submit Request',
+    noticeCancel: 'Go Back',
   },
   ja: {
     serviceHeading: 'ルームサービス',
@@ -1330,6 +1489,15 @@ const i18n = {
     timelineWaitProcessing: 'スタッフ手配中',
     timelineWaitDone: '完了待ち',
     summaryText: (n, items) => `${n}点：${items}`,
+    noticeTitle: '送信前のご確認',
+    noticeSubtitle: '以下の事項をご確認ください',
+    noticeItems: [
+      'ドアの<strong>「起こさないでください」</strong>ランプが消灯していることをご確認ください。点灯中はスタッフがお部屋に入室できない場合がございます。',
+      'スタッフ到着時にお部屋に<strong>誰もいらっしゃらない</strong>場合、サービスは自動的にキャンセルされます。再度お申し付けください。',
+      '一部のアメニティは<strong>在庫数に限り</strong>がございます。ご希望のアイテムをご用意できない場合は、スタッフよりお電話にてご連絡いたします。'
+    ],
+    noticeConfirm: '確認しました — 送信する',
+    noticeCancel: '戻る',
   }
 };
 
@@ -1531,7 +1699,33 @@ function findItem(fullId) {
 }
 
 // ── Submit ────────────────────────────────────────────
-window.submitRequest = async function() {
+window.submitRequest = function() {
+  const selected = Object.entries(quantities).filter(([,q]) => q > 0);
+  if (!selected.length) return;
+  showNotice();
+};
+
+function showNotice() {
+  const t = i18n[currentLang];
+  document.getElementById('noticeTitle').textContent = t.noticeTitle;
+  document.getElementById('noticeSubtitle').textContent = t.noticeSubtitle;
+  document.getElementById('noticeConfirmBtn').textContent = t.noticeConfirm;
+  document.querySelector('.notice-cancel-btn').textContent = t.noticeCancel;
+  document.getElementById('noticeList').innerHTML = t.noticeItems.map((text, i) =>
+    `<div class="notice-item">
+      <div class="notice-item-num">${i + 1}</div>
+      <div class="notice-item-text">${text}</div>
+    </div>`
+  ).join('');
+  document.getElementById('noticeOverlay').classList.add('show');
+}
+
+window.closeNotice = function() {
+  document.getElementById('noticeOverlay').classList.remove('show');
+};
+
+window.confirmAndSubmit = async function() {
+  closeNotice();
   const selected = Object.entries(quantities).filter(([,q]) => q > 0);
   if (!selected.length) return;
 
