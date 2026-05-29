@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>客房服務 | Lakeshore Hotel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A96E;
+    --gold-light: #E8D5A3;
+    --gold-dark: #A07840;
+    --deep: #1A1510;
+    --warm: #2C2218;
+    --surface: #F9F5EE;
+    --surface2: #F2EBE0;
+    --text: #3A2E22;
+    --text-light: #7A6A58;
+    --success: #4A7C59;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--deep);
+    padding: 18px 20px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .hotel-name {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+  }
+
+  .hotel-name-zh {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--gold-light);
+    letter-spacing: 0.15em;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .lang-switcher { display: flex; gap: 4px; }
+
+  .lang-btn {
+    background: transparent;
+    border: 1px solid rgba(201,169,110,0.3);
+    color: var(--gold-light);
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .lang-btn.active {
+    background: var(--gold);
+    color: var(--deep);
+    border-color: var(--gold);
+    font-weight: 500;
+  }
+
+  .room-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(201,169,110,0.15);
+    border: 1px solid rgba(201,169,110,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    color: var(--gold);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .room-badge:active { background: rgba(201,169,110,0.25); }
+  .room-badge .edit-hint { font-size: 10px; opacity: 0.6; margin-left: 2px; }
+
+  /* ── SCREEN SYSTEM ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── WELCOME SCREEN ── */
+  #screen-welcome {
+    min-height: 100vh;
+    background: var(--deep);
+    display: none;
+    flex-direction: column;
+  }
+
+  #screen-welcome.active {
+    display: flex;
+  }
+
+  .welcome-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 28px 20px;
+    text-align: center;
+  }
+
+  .welcome-logo {
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .welcome-logo-zh {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    color: rgba(201,169,110,0.55);
+    letter-spacing: 0.18em;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  /* Service Heading */
+  .welcome-service-heading {
+    text-align: center;
+    margin-bottom: 28px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .welcome-service-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .welcome-service-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(201,169,110,0.7);
+    letter-spacing: 0.25em;
+    margin-bottom: 16px;
+  }
+
+  .welcome-service-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+
+  .welcome-service-divider span:not(.diamond) {
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: rgba(201,169,110,0.3);
+    display: block;
+  }
+
+  .welcome-service-divider .diamond {
+    color: var(--gold);
+    font-size: 8px;
+    opacity: 0.7;
+  }
+
+  .welcome-service-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+
+  .welcome-title {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+  }
+
+  /* Building Cards */
+  .building-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .building-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .building-card:active {
+    background: rgba(201,169,110,0.12);
+    border-color: var(--gold);
+    transform: scale(0.98);
+  }
+
+  .building-card.selected {
+    background: rgba(201,169,110,0.12);
+    border-color: var(--gold);
+  }
+
+  .building-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .building-info { flex: 1; }
+
+  .building-name-zh {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 3px;
+  }
+
+  .building-name-en {
+    font-size: 11px;
+    color: rgba(201,169,110,0.7);
+    letter-spacing: 0.05em;
+  }
+
+  .building-arrow {
+    color: rgba(201,169,110,0.4);
+    font-size: 16px;
+  }
+
+  /* ── ROOM INPUT SCREEN ── */
+  #screen-room {
+    min-height: 100vh;
+    background: var(--deep);
+    display: none;
+    flex-direction: column;
+  }
+
+  #screen-room.active { display: flex; }
+
+  .room-header {
+    padding: 20px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .back-btn-dark {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: rgba(255,255,255,0.6);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .back-btn-dark:active { background: rgba(255,255,255,0.15); }
+
+  .room-header-info { flex: 1; }
+
+  .room-header-building {
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+  }
+
+  .room-header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 400;
+  }
+
+  .room-display {
+    text-align: center;
+    padding: 32px 20px 16px;
+  }
+
+  .room-number-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    color: var(--gold);
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .room-number-display.empty {
+    color: rgba(201,169,110,0.2);
+  }
+
+  .room-number-display .cursor {
+    width: 3px;
+    height: 52px;
+    background: var(--gold);
+    margin-left: 4px;
+    animation: blink 1s infinite;
+    border-radius: 2px;
+  }
+
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+  .room-hint {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  /* Numpad */
+  .numpad {
+    padding: 8px 20px 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 340px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .num-btn {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px 0;
+    font-size: 22px;
+    font-family: 'Cormorant Garamond', serif;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    transition: all 0.12s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .num-btn .sub {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 9px;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.05em;
+  }
+
+  .num-btn:active { background: rgba(201,169,110,0.15); border-color: rgba(201,169,110,0.3); transform: scale(0.95); }
+
+  .num-btn.del { font-size: 20px; }
+  .num-btn.zero { font-size: 22px; }
+
+  .num-btn.confirm-btn {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--deep);
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .num-btn.confirm-btn:active { background: var(--gold-dark); }
+  .num-btn.confirm-btn:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.2); border-color: transparent; }
+
+  /* ── MAIN APP SCREEN (body) ── */
+  #screen-main { padding-bottom: 120px; }
+
+  /* GREETING */
+  .greeting {
+    padding: 20px 20px 6px;
+  }
+
+  .greeting-building {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+
+  .greeting-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    margin-bottom: 2px;
+  }
+
+  .greeting-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    letter-spacing: 0.03em;
+  }
+
+  /* DIVIDER */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px 6px;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: rgba(201,169,110,0.25); }
+  .divider-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); opacity: 0.6; }
+
+  .category-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    font-weight: 500;
+    padding: 0 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  /* ITEMS GRID */
+  .items-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 20px;
+    margin-bottom: 6px;
+  }
+
+  .item-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    border: 1.5px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+
+  .item-card.selected {
+    border-color: var(--gold);
+    background: #FEFBF4;
+    box-shadow: 0 2px 16px rgba(201,169,110,0.2);
+  }
+
+  .item-icon { font-size: 28px; margin-bottom: 6px; display: block; }
+
+  .item-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+    line-height: 1.3;
+  }
+
+  .item-name-sub {
+    font-size: 10px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .qty-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  .qty-btn {
+    width: 28px; height: 28px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-light);
+    border-radius: 6px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qty-btn:active { background: rgba(0,0,0,0.08); transform: scale(0.9); }
+  .qty-btn.plus.active { background: var(--gold); color: white; }
+
+  .qty-num {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .selected-dot {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .item-card.selected .selected-dot { opacity: 1; }
+
+  /* REMARK */
+  .remark-section { padding: 0 20px; margin-top: 8px; }
+
+  .remark-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-light);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .remark-input {
+    width: 100%;
+    background: white;
+    border: 1.5px solid rgba(201,169,110,0.25);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  }
+
+  .remark-input:focus { border-color: var(--gold); }
+  .remark-input::placeholder { color: var(--text-light); opacity: 0.6; }
+
+  /* SUBMIT BAR */
+  .submit-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    padding: 10px 20px 28px;
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+
+  .submit-summary {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+    text-align: center;
+    min-height: 16px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--gold);
+    color: var(--deep);
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { background: #D0C8BB; cursor: not-allowed; transform: none; }
+
+  /* ── SUCCESS / PROGRESS SCREEN ── */
+  #screen-progress {
+    min-height: 100vh;
+    background: var(--deep);
+    display: none;
+    flex-direction: column;
+    padding: 0 0 40px;
+  }
+
+  #screen-progress.active { display: flex; }
+
+  .progress-header {
+    padding: 24px 20px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .progress-check {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(74,124,89,0.15);
+    border: 2px solid #4A7C59;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 16px;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+
+  .progress-sent-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    color: var(--gold);
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .progress-sent-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+  }
+
+  /* Ref Box */
+  .ref-box {
+    margin: 16px 20px 0;
+    background: rgba(201,169,110,0.08);
+    border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ref-label { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.1em; margin-bottom: 4px; }
+  .ref-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+  }
+
+  .copy-btn {
+    background: rgba(201,169,110,0.12);
+    border: 1px solid rgba(201,169,110,0.25);
+    color: var(--gold);
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  .copy-btn:active { background: rgba(201,169,110,0.25); }
+
+  /* Status Timeline */
+  .status-section {
+    margin: 20px 20px 0;
+  }
+
+  .status-section-title {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 32px;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .timeline-item:last-child::before { display: none; }
+
+  .timeline-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .timeline-dot.done {
+    background: rgba(74,124,89,0.2);
+    border: 2px solid #4A7C59;
+  }
+
+  .timeline-dot.active {
+    background: rgba(91,155,213,0.2);
+    border: 2px solid #5B9BD5;
+    animation: pulseDot 2s infinite;
+  }
+
+  .timeline-dot.waiting {
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.1);
+  }
+
+  @keyframes pulseDot {
+    0%,100% { box-shadow: 0 0 0 0 rgba(91,155,213,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(91,155,213,0); }
+  }
+
+  .timeline-content { flex: 1; padding-top: 4px; }
+
+  .timeline-title {
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 2px;
+    font-weight: 500;
+  }
+
+  .timeline-title.dim { color: rgba(255,255,255,0.25); font-weight: 400; }
+
+  .timeline-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.03em;
+  }
+
+  /* Items Summary */
+  .items-summary {
+    margin: 16px 20px 0;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  .items-summary-title {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .summary-chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .summary-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .summary-chip .qty-tag {
+    color: var(--gold);
+    margin-left: 2px;
+  }
+
+  /* Action Buttons */
+  .progress-actions {
+    margin: 24px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-btn-gold {
+    width: 100%;
+    background: var(--gold);
+    color: var(--deep);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+
+  .action-btn-gold:active { opacity: 0.85; transform: scale(0.98); }
+
+  .action-btn-outline {
+    width: 100%;
+    background: transparent;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+
+  .action-btn-outline:active { background: rgba(255,255,255,0.05); }
+
+  /* ── LOOKUP SCREEN ── */
+  #screen-lookup {
+    min-height: 100vh;
+    background: var(--deep);
+    display: none;
+    flex-direction: column;
+    padding: 24px 20px;
+  }
+
+  #screen-lookup.active { display: flex; }
+
+  .lookup-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    color: var(--gold);
+    font-weight: 400;
+    margin-bottom: 6px;
+    margin-top: 8px;
+  }
+
+  .lookup-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 24px;
+    letter-spacing: 0.03em;
+  }
+
+  .lookup-input-wrap {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .lookup-input {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 18px;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    outline: none;
+    text-transform: uppercase;
+    transition: border-color 0.2s;
+  }
+
+  .lookup-input:focus { border-color: rgba(201,169,110,0.4); }
+  .lookup-input::placeholder { color: rgba(255,255,255,0.15); font-size: 14px; letter-spacing: 0.05em; }
+
+  .lookup-btn {
+    background: var(--gold);
+    border: none;
+    color: var(--deep);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: opacity 0.15s;
+  }
+
+  .lookup-btn:active { opacity: 0.8; }
+
+  .lookup-result { }
+
+  .lookup-empty {
+    text-align: center;
+    padding: 40px 0;
+    color: rgba(255,255,255,0.2);
+    font-size: 13px;
+  }
+
+  /* LOADING */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,21,16,0.7);
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-overlay.show { display: flex; }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 2px solid rgba(201,169,110,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-categories {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SCREEN 1: 館別選擇
+══════════════════════════════════════ -->
+<div class="screen active" id="screen-welcome">
+  <div class="welcome-hero">
+    <div class="welcome-logo">
+      煙波大飯店花蓮太魯閣
+      <span class="welcome-logo-zh">Lakeshore Hotel Taroko Hualien</span>
+    </div>
+
+    <!-- 主抬頭 -->
+    <div class="welcome-service-heading">
+      <div class="welcome-service-title" data-i18n="serviceHeading">客房服務</div>
+      <div class="welcome-service-en" data-i18n="serviceHeadingEn">In-Room Service Request</div>
+      <div class="welcome-service-divider">
+        <span></span><span class="diamond">◆</span><span></span>
+      </div>
+      <div class="welcome-service-desc" data-i18n="serviceDesc">您有任何備品需求，我們隨時為您服務</div>
+    </div>
+
+    <div class="welcome-title" data-i18n="welcomeTitle">請選擇您的館別</div>
+    <div class="building-cards">
+      <div class="building-card" onclick="selectBuilding('tranquil')">
+        <div class="building-icon">🌊</div>
+        <div class="building-info">
+          <div class="building-name-zh">沁海館</div>
+          <div class="building-name-en">Tranquil Building</div>
+        </div>
+        <div class="building-arrow">›</div>
+      </div>
+      <div class="building-card" onclick="selectBuilding('moment')">
+        <div class="building-icon">🌸</div>
+        <div class="building-info">
+          <div class="building-name-zh">煙波花蓮花時間</div>
+          <div class="building-name-en">The Moment Hotel</div>
+        </div>
+        <div class="building-arrow">›</div>
+      </div>
+      <div class="building-card" onclick="selectBuilding('serenity')">
+        <div class="building-icon">⛰️</div>
+        <div class="building-info">
+          <div class="building-name-zh">山闊館</div>
+          <div class="building-name-en">Serenity Building</div>
+        </div>
+        <div class="building-arrow">›</div>
+      </div>
+    </div>
+
+    <!-- 查詢按鈕 -->
+    <div style="margin-top:28px;width:100%;max-width:360px">
+      <button class="action-btn-outline" style="font-size:13px;padding:12px" onclick="showScreen('screen-lookup')">
+        🔍 <span data-i18n="lookupBtn">查詢服務進度</span>
+      </button>
+    </div>
+
+    <!-- 語言切換 -->
+    <div style="display:flex;gap:8px;margin-top:20px">
+      <button class="lang-btn active" onclick="setLang('zh')">中</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ja')">日</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2: 房號輸入
+══════════════════════════════════════ -->
+<div class="screen" id="screen-room">
+  <div class="room-header">
+    <button class="back-btn-dark" onclick="showScreen('screen-welcome')">‹</button>
+    <div class="room-header-info">
+      <div class="room-header-building" id="roomHeaderBuilding">—</div>
+      <div class="room-header-title" data-i18n="enterRoom">請輸入房號</div>
+    </div>
+  </div>
+
+  <div class="room-display">
+    <div class="room-number-display empty" id="roomNumberDisplay">
+      <span class="cursor"></span>
+    </div>
+    <div class="room-hint" data-i18n="roomHint">輸入您的房間號碼</div>
+  </div>
+
+  <div class="numpad">
+    <button class="num-btn" onclick="numInput('1')">1</button>
+    <button class="num-btn" onclick="numInput('2')">2<span class="sub">ABC</span></button>
+    <button class="num-btn" onclick="numInput('3')">3<span class="sub">DEF</span></button>
+    <button class="num-btn" onclick="numInput('4')">4<span class="sub">GHI</span></button>
+    <button class="num-btn" onclick="numInput('5')">5<span class="sub">JKL</span></button>
+    <button class="num-btn" onclick="numInput('6')">6<span class="sub">MNO</span></button>
+    <button class="num-btn" onclick="numInput('7')">7<span class="sub">PQRS</span></button>
+    <button class="num-btn" onclick="numInput('8')">8<span class="sub">TUV</span></button>
+    <button class="num-btn" onclick="numInput('9')">9<span class="sub">WXYZ</span></button>
+    <button class="num-btn del" onclick="numDelete()">⌫</button>
+    <button class="num-btn zero" onclick="numInput('0')">0</button>
+    <button class="num-btn confirm-btn" id="numConfirmBtn" onclick="confirmRoom()" disabled data-i18n="confirm">確認</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 3: 主畫面（選備品）
+══════════════════════════════════════ -->
+<div class="screen" id="screen-main">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="hotel-name">
+          Lakeshore Hotel Hualien Taroko
+          <span class="hotel-name-zh">煙波花蓮太魯閣</span>
+        </div>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLang('zh')">中</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('ja')">日</button>
+      </div>
+    </div>
+    <div class="room-badge" onclick="showScreen('screen-welcome')" title="更換館別/房號">
+      <span id="headerBuildingBadge">—</span>
+      &nbsp;·&nbsp;
+      <span data-i18n="room">房號</span>
+      <strong id="roomDisplay">—</strong>
+      <span class="edit-hint">✎</span>
+    </div>
+  </div>
+
+  <!-- Greeting -->
+  <div class="greeting">
+    <div class="greeting-building" id="greetingBuilding"></div>
+    <div class="greeting-title" data-i18n="greeting">您好，有什麼需要服務的嗎？</div>
+    <div class="greeting-sub" data-i18n="greetingSub">請選擇您需要的備品，我們將盡快為您送達</div>
+  </div>
+
+  <div id="categoriesContainer"></div>
+
+  <!-- Remark -->
+  <div class="remark-section">
+    <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+    <span class="remark-label" data-i18n="remarkLabel">特別備註 · Special Note</span>
+    <textarea class="remark-input" id="remarkInput" rows="3" placeholder="如有其他需求或說明，請在此輸入…"></textarea>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-bar">
+    <div class="submit-summary" id="submitSummary"></div>
+    <button class="submit-btn" id="submitBtn" onclick="submitRequest()" disabled>
+      <span data-i18n="submitBtn">送出服務需求</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 4: 進度畫面
+══════════════════════════════════════ -->
+<div class="screen" id="screen-progress">
+  <div class="progress-header">
+    <div class="progress-check">✓</div>
+    <div class="progress-sent-title" data-i18n="successTitle">需求已送出</div>
+    <div class="progress-sent-sub" data-i18n="successSub">我們的服務人員將盡快為您送達</div>
+  </div>
+
+  <!-- Ref -->
+  <div class="ref-box">
+    <div>
+      <div class="ref-label" data-i18n="refLabel">服務單號</div>
+      <div class="ref-number" id="progressRefNum">——</div>
+    </div>
+    <button class="copy-btn" onclick="copyRef()" data-i18n="copyBtn">複製</button>
+  </div>
+
+  <!-- Timeline -->
+  <div class="status-section">
+    <div class="status-section-title" data-i18n="statusTitle">服務進度</div>
+    <div class="timeline" id="progressTimeline"></div>
+  </div>
+
+  <!-- Items -->
+  <div class="items-summary">
+    <div class="items-summary-title" data-i18n="itemsTitle">本次需求項目</div>
+    <div class="summary-chip-list" id="progressItems"></div>
+  </div>
+
+  <!-- Actions -->
+  <div class="progress-actions">
+    <button class="action-btn-gold" onclick="resetAndGoHome()" data-i18n="newRequestBtn">再送一筆需求</button>
+    <button class="action-btn-outline" onclick="showScreen('screen-lookup')" data-i18n="lookupBtn2">查詢其他服務單</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 5: 查詢畫面
+══════════════════════════════════════ -->
+<div class="screen" id="screen-lookup">
+  <button class="back-btn-dark" onclick="goBackFromLookup()" style="margin:16px 0 0 0">‹</button>
+  <div class="lookup-title" data-i18n="lookupTitle">查詢服務進度</div>
+  <div class="lookup-sub" data-i18n="lookupSub">輸入您的六位服務單號</div>
+
+  <div class="lookup-input-wrap">
+    <input type="text" class="lookup-input" id="lookupInput" maxlength="6" placeholder="XXXXXX" oninput="this.value=this.value.toUpperCase()">
+    <button class="lookup-btn" onclick="doLookup()" data-i18n="lookupSearch">查詢</button>
+  </div>
+
+  <div class="lookup-result" id="lookupResult">
+    <div class="lookup-empty" data-i18n="lookupEmpty">請輸入服務單號進行查詢</div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+<!-- ══ FIREBASE ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCFDq7PjC5j--bnHJ9SBglao4_avOCEge8",
+  authDomain: "lakeshore-guest-service.firebaseapp.com",
+  databaseURL: "https://lakeshore-guest-service-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "lakeshore-guest-service",
+  storageBucket: "lakeshore-guest-service.firebasestorage.app",
+  messagingSenderId: "1026886642744",
+  appId: "1:1026886642744:web:225dccc902e0a7d9e00acd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── i18n ─────────────────────────────────────────────
+const i18n = {
+  zh: {
+    serviceHeading: '客房服務',
+    serviceHeadingEn: 'In-Room Service Request',
+    serviceDesc: '您有任何備品需求，我們隨時為您服務',
+    welcomeTitle: '請選擇您的館別',
+    enterRoom: '請輸入房號',
+    roomHint: '輸入您的房間號碼',
+    confirm: '確認',
+    room: '房號',
+    greeting: '您好，有什麼需要服務的嗎？',
+    greetingSub: '請選擇您需要的備品，我們將盡快為您送達',
+    remarkLabel: '特別備註 · Special Note',
+    remarkPlaceholder: '如有其他需求或說明，請在此輸入…',
+    submitBtn: '送出服務需求',
+    successTitle: '需求已送出',
+    successSub: '我們的服務人員將盡快為您送達',
+    refLabel: '服務單號',
+    copyBtn: '複製',
+    copyDone: '已複製 ✓',
+    statusTitle: '服務進度',
+    itemsTitle: '本次需求項目',
+    newRequestBtn: '再送一筆需求',
+    lookupBtn: '查詢服務進度',
+    lookupBtn2: '查詢其他服務單',
+    lookupTitle: '查詢服務進度',
+    lookupSub: '輸入您的六位服務單號',
+    lookupSearch: '查詢',
+    lookupEmpty: '請輸入服務單號進行查詢',
+    lookupNotFound: '找不到此服務單，請確認單號是否正確',
+    statusPending: '待處理',
+    statusProcessing: '處理中',
+    statusDone: '已完成',
+    timelineSent: '需求已送出',
+    timelineSentSub: '已收到您的請求',
+    timelineProcessing: '服務人員處理中',
+    timelineProcessingSub: '正在為您準備',
+    timelineDone: '服務已完成',
+    timelineDoneSub: '感謝您的耐心等候',
+    timelineWaitProcessing: '等待派員服務',
+    timelineWaitDone: '等待完成',
+    summaryText: (n, items) => `已選 ${n} 項：${items}`,
+  },
+  en: {
+    serviceHeading: 'Room Service',
+    serviceHeadingEn: 'In-Room Service Request',
+    serviceDesc: 'We are here to assist you at any time.',
+    welcomeTitle: 'Please select your building',
+    enterRoom: 'Enter Room Number',
+    roomHint: 'Enter your room number',
+    confirm: 'OK',
+    room: 'Room',
+    greeting: 'Hello! How can we assist you?',
+    greetingSub: 'Select items and we\'ll deliver them shortly.',
+    remarkLabel: 'Special Note',
+    remarkPlaceholder: 'Any additional requests...',
+    submitBtn: 'Submit Request',
+    successTitle: 'Request Submitted',
+    successSub: 'Our staff will deliver your items shortly.',
+    refLabel: 'Request ID',
+    copyBtn: 'Copy',
+    copyDone: 'Copied ✓',
+    statusTitle: 'Service Progress',
+    itemsTitle: 'Requested Items',
+    newRequestBtn: 'New Request',
+    lookupBtn: 'Track Request',
+    lookupBtn2: 'Track Another Request',
+    lookupTitle: 'Track Your Request',
+    lookupSub: 'Enter your 6-character request ID',
+    lookupSearch: 'Search',
+    lookupEmpty: 'Enter your request ID to track status',
+    lookupNotFound: 'Request not found. Please check your ID.',
+    statusPending: 'Pending',
+    statusProcessing: 'In Progress',
+    statusDone: 'Completed',
+    timelineSent: 'Request Received',
+    timelineSentSub: 'We have received your request',
+    timelineProcessing: 'Staff on the Way',
+    timelineProcessingSub: 'Preparing your items',
+    timelineDone: 'Service Completed',
+    timelineDoneSub: 'Thank you for your patience',
+    timelineWaitProcessing: 'Awaiting staff assignment',
+    timelineWaitDone: 'Awaiting completion',
+    summaryText: (n, items) => `${n} item(s): ${items}`,
+  },
+  ja: {
+    serviceHeading: 'ルームサービス',
+    serviceHeadingEn: 'In-Room Service Request',
+    serviceDesc: 'いつでもお気軽にお申し付けください。',
+    welcomeTitle: '棟をお選びください',
+    enterRoom: 'お部屋番号を入力',
+    roomHint: '部屋番号を入力してください',
+    confirm: '確認',
+    room: 'お部屋',
+    greeting: 'ご用件をお申し付けください',
+    greetingSub: 'ご希望のアメニティをお選びください。',
+    remarkLabel: '特記事項',
+    remarkPlaceholder: 'その他ご要望がございましたらご記入ください…',
+    submitBtn: 'リクエストを送信',
+    successTitle: '送信完了',
+    successSub: 'スタッフが速やかにお届けいたします。',
+    refLabel: '受付番号',
+    copyBtn: 'コピー',
+    copyDone: 'コピー済 ✓',
+    statusTitle: 'サービス進捗',
+    itemsTitle: 'ご依頼内容',
+    newRequestBtn: '再度リクエスト',
+    lookupBtn: '進捗を確認',
+    lookupBtn2: '他の受付番号を確認',
+    lookupTitle: 'サービス進捗確認',
+    lookupSub: '6桁の受付番号を入力してください',
+    lookupSearch: '検索',
+    lookupEmpty: '受付番号を入力して検索してください',
+    lookupNotFound: '受付番号が見つかりません。番号をご確認ください。',
+    statusPending: '受付中',
+    statusProcessing: '対応中',
+    statusDone: '完了',
+    timelineSent: 'リクエスト受信',
+    timelineSentSub: 'リクエストを受け付けました',
+    timelineProcessing: 'スタッフ対応中',
+    timelineProcessingSub: 'お届けの準備をしております',
+    timelineDone: 'サービス完了',
+    timelineDoneSub: 'お待たせいたしました',
+    timelineWaitProcessing: 'スタッフ手配中',
+    timelineWaitDone: '完了待ち',
+    summaryText: (n, items) => `${n}点：${items}`,
+  }
+};
+
+// ── Buildings ─────────────────────────────────────────
+const buildings = {
+  tranquil: { zh: '沁海館', en: 'Tranquil Building', ja: '沁海館' },
+  moment:   { zh: '煙波花蓮花時間', en: 'The Moment Hotel', ja: '花時間' },
+  serenity: { zh: '山闊館', en: 'Serenity Building', ja: '山闊館' },
+};
+
+// ── State ─────────────────────────────────────────────
+let currentLang = 'zh';
+let selectedBuilding = null;
+let roomInput = '';
+let roomNumber = '';
+let quantities = {};
+let categories = [];
+let currentRequestId = null;
+let currentRequestRef = null; // for live listener
+let progressUnsubscribe = null;
+
+// ── Screen Management ─────────────────────────────────
+window.showScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+
+// ── Lang ──────────────────────────────────────────────
+window.setLang = function(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active',
+      (lang==='zh' && b.textContent==='中') ||
+      (lang==='en' && b.textContent==='EN') ||
+      (lang==='ja' && b.textContent==='日'));
+  });
+  applyI18n();
+  renderCategories();
+  updateSummary();
+  if (selectedBuilding) updateBuildingDisplay();
+};
+
+function applyI18n() {
+  const t = i18n[currentLang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (t[key]) el.textContent = t[key];
+  });
+  const remarkinput = document.getElementById('remarkInput');
+  if (remarkinput) remarkinput.placeholder = t.remarkPlaceholder;
+}
+
+// ── Building Select ───────────────────────────────────
+window.selectBuilding = function(buildingKey) {
+  selectedBuilding = buildingKey;
+  roomInput = '';
+  updateRoomDisplay();
+  const b = buildings[buildingKey];
+  document.getElementById('roomHeaderBuilding').textContent =
+    currentLang === 'zh' ? b.zh : currentLang === 'en' ? b.en : b.ja;
+  showScreen('screen-room');
+};
+
+function updateBuildingDisplay() {
+  if (!selectedBuilding) return;
+  const b = buildings[selectedBuilding];
+  const name = currentLang === 'zh' ? b.zh : currentLang === 'en' ? b.en : b.ja;
+  const el = document.getElementById('headerBuildingBadge');
+  if (el) el.textContent = name;
+  const gb = document.getElementById('greetingBuilding');
+  if (gb) gb.textContent = name;
+  document.getElementById('roomHeaderBuilding').textContent = name;
+}
+
+// ── Numpad ────────────────────────────────────────────
+window.numInput = function(d) {
+  if (roomInput.length >= 4) return;
+  roomInput += d;
+  updateRoomDisplay();
+};
+
+window.numDelete = function() {
+  roomInput = roomInput.slice(0, -1);
+  updateRoomDisplay();
+};
+
+function updateRoomDisplay() {
+  const el = document.getElementById('roomNumberDisplay');
+  const btn = document.getElementById('numConfirmBtn');
+  if (roomInput.length === 0) {
+    el.innerHTML = '<span class="cursor"></span>';
+    el.className = 'room-number-display empty';
+  } else {
+    el.textContent = roomInput;
+    el.className = 'room-number-display';
+  }
+  btn.disabled = roomInput.length === 0;
+}
+
+window.confirmRoom = function() {
+  if (!roomInput) return;
+  roomNumber = roomInput;
+  document.getElementById('roomDisplay').textContent = roomNumber;
+  updateBuildingDisplay();
+  applyI18n();
+  loadCategories();
+  showScreen('screen-main');
+  window.scrollTo(0, 0);
+};
+
+// ── Categories ────────────────────────────────────────
+function loadCategories() {
+  onValue(ref(db, 'categories'), (snap) => {
+    if (snap.exists()) {
+      const data = snap.val();
+      categories = Object.entries(data)
+        .map(([id, cat]) => ({ id, ...cat }))
+        .filter(c => c.active !== false)
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+    } else { categories = []; }
+    renderCategories();
+  });
+}
+
+window.renderCategories = function() {
+  const container = document.getElementById('categoriesContainer');
+  if (!container) return;
+  if (!categories.length) {
+    container.innerHTML = '<div class="empty-categories">載入中…</div>';
+    return;
+  }
+
+  container.innerHTML = categories.map(cat => {
+    const catName = currentLang==='zh' ? cat.nameZh : currentLang==='en' ? cat.nameEn : cat.nameJa;
+    const items = cat.items
+      ? Object.entries(cat.items).map(([id, item]) => ({ id: `${cat.id}_${id}`, catId: cat.id, rawId: id, ...item }))
+      : [];
+    if (!items.length) return '';
+    return `
+      <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+      <div class="category-label">${cat.icon || ''} ${catName}</div>
+      <div class="items-grid">
+        ${items.map(item => {
+          const itemName = currentLang==='zh' ? item.nameZh : currentLang==='en' ? item.nameEn : item.nameJa;
+          const qty = quantities[item.id] || 0;
+          return `
+            <div class="item-card ${qty > 0 ? 'selected' : ''}" id="card_${item.id}">
+              <div class="selected-dot"></div>
+              <span class="item-icon">${item.icon || '📦'}</span>
+              <div class="item-name">${itemName}</div>
+              <div class="qty-control">
+                <button class="qty-btn minus" onclick="changeQty('${item.id}', -1)">−</button>
+                <span class="qty-num" id="qty_${item.id}">${qty}</span>
+                <button class="qty-btn plus ${qty > 0 ? 'active' : ''}" onclick="changeQty('${item.id}', 1)">＋</button>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  }).join('');
+};
+
+// ── Qty ───────────────────────────────────────────────
+window.changeQty = function(itemId, delta) {
+  const next = Math.max(0, (quantities[itemId] || 0) + delta);
+  quantities[itemId] = next;
+  const qtyEl = document.getElementById(`qty_${itemId}`);
+  const card  = document.getElementById(`card_${itemId}`);
+  const plus  = card?.querySelector('.qty-btn.plus');
+  if (qtyEl) qtyEl.textContent = next;
+  if (card)  card.classList.toggle('selected', next > 0);
+  if (plus)  plus.classList.toggle('active', next > 0);
+  updateSummary();
+};
+
+function updateSummary() {
+  const t = i18n[currentLang];
+  const selected = Object.entries(quantities).filter(([,q]) => q > 0);
+  const btn = document.getElementById('submitBtn');
+  const sumEl = document.getElementById('submitSummary');
+  if (!btn) return;
+  if (!selected.length) { btn.disabled = true; sumEl.textContent = ''; return; }
+  btn.disabled = false;
+  const names = selected.map(([id, q]) => {
+    const item = findItem(id);
+    const name = item ? (currentLang==='zh' ? item.nameZh : currentLang==='en' ? item.nameEn : item.nameJa) : id;
+    return `${name}×${q}`;
+  });
+  sumEl.textContent = t.summaryText(selected.length, names.join('、'));
+}
+
+function findItem(fullId) {
+  for (const cat of categories) {
+    if (!cat.items) continue;
+    for (const [rawId, item] of Object.entries(cat.items)) {
+      if (`${cat.id}_${rawId}` === fullId) return item;
+    }
+  }
+  return null;
+}
+
+// ── Submit ────────────────────────────────────────────
+window.submitRequest = async function() {
+  const selected = Object.entries(quantities).filter(([,q]) => q > 0);
+  if (!selected.length) return;
+
+  document.getElementById('loadingOverlay').classList.add('show');
+
+  const items = selected.map(([id, qty]) => {
+    const item = findItem(id);
+    return { id, nameZh: item?.nameZh||id, nameEn: item?.nameEn||id, nameJa: item?.nameJa||id, qty };
+  });
+
+  const b = buildings[selectedBuilding] || {};
+  const requestData = {
+    building: selectedBuilding,
+    buildingZh: b.zh || '',
+    buildingEn: b.en || '',
+    room: roomNumber,
+    items,
+    remark: document.getElementById('remarkInput').value.trim(),
+    lang: currentLang,
+    status: 'pending',
+    createdAt: Date.now(),
+  };
+
+  try {
+    const newRef = await push(ref(db, 'requests'), requestData);
+    currentRequestId = newRef.key.slice(-6).toUpperCase();
+    currentRequestRef = newRef.key;
+    document.getElementById('loadingOverlay').classList.remove('show');
+    showProgressScreen(items, requestData);
+    startProgressListener(newRef.key);
+  } catch(e) {
+    document.getElementById('loadingOverlay').classList.remove('show');
+    alert('送出失敗，請稍後再試');
+  }
+};
+
+// ── Progress Screen ───────────────────────────────────
+function showProgressScreen(items, requestData) {
+  document.getElementById('progressRefNum').textContent = currentRequestId;
+
+  // Items chips
+  const chipList = document.getElementById('progressItems');
+  chipList.innerHTML = items.map(item => {
+    const name = currentLang==='zh' ? item.nameZh : currentLang==='en' ? item.nameEn : item.nameJa;
+    return `<div class="summary-chip">${name}<span class="qty-tag">×${item.qty}</span></div>`;
+  }).join('');
+
+  renderTimeline('pending');
+  applyI18n();
+  showScreen('screen-progress');
+  window.scrollTo(0,0);
+}
+
+function startProgressListener(fbKey) {
+  if (progressUnsubscribe) progressUnsubscribe();
+  progressUnsubscribe = onValue(ref(db, `requests/${fbKey}`), (snap) => {
+    if (snap.exists()) {
+      const data = snap.val();
+      renderTimeline(data.status);
+    }
+  });
+}
+
+function renderTimeline(status) {
+  const t = i18n[currentLang];
+  const sentDone = true;
+  const procDone = status === 'done';
+  const procActive = status === 'processing';
+  const doneDone = status === 'done';
+
+  const tl = document.getElementById('progressTimeline');
+  if (!tl) return;
+
+  tl.innerHTML = `
+    <div class="timeline-item">
+      <div class="timeline-dot done">✓</div>
+      <div class="timeline-content">
+        <div class="timeline-title">${t.timelineSent}</div>
+        <div class="timeline-sub">${t.timelineSentSub}</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot ${procActive ? 'active' : procDone ? 'done' : 'waiting'}">
+        ${procDone ? '✓' : procActive ? '⟳' : '○'}
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-title ${(!procActive && !procDone) ? 'dim' : ''}">${t.timelineProcessing}</div>
+        <div class="timeline-sub">${procActive ? t.timelineProcessingSub : (!procDone ? t.timelineWaitProcessing : t.timelineProcessingSub)}</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot ${doneDone ? 'done' : 'waiting'}">
+        ${doneDone ? '✓' : '○'}
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-title ${!doneDone ? 'dim' : ''}">${t.timelineDone}</div>
+        <div class="timeline-sub">${doneDone ? t.timelineDoneSub : t.timelineWaitDone}</div>
+      </div>
+    </div>`;
+}
+
+// ── Copy Ref ──────────────────────────────────────────
+window.copyRef = function() {
+  const t = i18n[currentLang];
+  navigator.clipboard?.writeText(currentRequestId).catch(()=>{});
+  const btn = document.querySelector('.copy-btn');
+  if (btn) { btn.textContent = t.copyDone; setTimeout(()=>{ btn.textContent = t.copyBtn; }, 2000); }
+};
+
+// ── Lookup ────────────────────────────────────────────
+window.doLookup = async function() {
+  const t = i18n[currentLang];
+  const code = document.getElementById('lookupInput').value.trim().toUpperCase();
+  if (code.length < 4) return;
+  document.getElementById('loadingOverlay').classList.add('show');
+
+  try {
+    const snap = await get(ref(db, 'requests'));
+    document.getElementById('loadingOverlay').classList.remove('show');
+    if (!snap.exists()) {
+      document.getElementById('lookupResult').innerHTML = `<div class="lookup-empty">${t.lookupNotFound}</div>`;
+      return;
+    }
+    const all = snap.val();
+    const found = Object.entries(all).find(([key]) => key.slice(-6).toUpperCase() === code);
+    if (!found) {
+      document.getElementById('lookupResult').innerHTML = `<div class="lookup-empty">${t.lookupNotFound}</div>`;
+      return;
+    }
+    const [fbKey, req] = found;
+    renderLookupResult(fbKey, req, code);
+  } catch(e) {
+    document.getElementById('loadingOverlay').classList.remove('show');
+    document.getElementById('lookupResult').innerHTML = `<div class="lookup-empty">查詢失敗，請稍後再試</div>`;
+  }
+};
+
+function renderLookupResult(fbKey, req, code) {
+  const t = i18n[currentLang];
+  const statusLabel = { pending: t.statusPending, processing: t.statusProcessing, done: t.statusDone }[req.status] || req.status;
+  const statusColor = { pending: '#E8A94A', processing: '#5B9BD5', done: '#5BAD7B' }[req.status] || '#888';
+  const buildingName = currentLang==='zh' ? req.buildingZh : currentLang==='en' ? req.buildingEn : (req.buildingZh || req.buildingEn || '');
+  const time = new Date(req.createdAt).toLocaleString('zh-TW', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false });
+  const items = (req.items || []).map(item => {
+    const name = currentLang==='zh' ? item.nameZh : currentLang==='en' ? item.nameEn : item.nameJa;
+    return `<div class="summary-chip">${name}<span class="qty-tag">×${item.qty}</span></div>`;
+  }).join('');
+
+  // Build a mini timeline
+  const status = req.status;
+  const miniTl = [
+    { label: t.timelineSent, done: true, active: false },
+    { label: t.timelineProcessing, done: status==='done', active: status==='processing' },
+    { label: t.timelineDone, done: status==='done', active: false },
+  ].map(s => `
+    <div class="timeline-item">
+      <div class="timeline-dot ${s.done ? 'done' : s.active ? 'active' : 'waiting'}">${s.done ? '✓' : s.active ? '⟳' : '○'}</div>
+      <div class="timeline-content"><div class="timeline-title ${(!s.done&&!s.active)?'dim':''}">${s.label}</div></div>
+    </div>`).join('');
+
+  document.getElementById('lookupResult').innerHTML = `
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:3px">${buildingName} · ${req.room || ''} 房</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);letter-spacing:0.15em">${code}</div>
+        </div>
+        <div style="background:rgba(${statusColor.slice(1).match(/../g).map(h=>parseInt(h,16)).join(',')},0.15);border:1px solid ${statusColor}33;color:${statusColor};font-size:12px;padding:5px 12px;border-radius:20px">
+          ${statusLabel}
+        </div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:12px">📅 ${time}</div>
+      <div class="timeline" style="margin-bottom:12px">${miniTl}</div>
+      <div class="items-summary-title" style="margin-bottom:8px">${t.itemsTitle}</div>
+      <div class="summary-chip-list">${items}</div>
+    </div>`;
+
+  // Start live listener for lookup result
+  onValue(ref(db, `requests/${fbKey}`), (snap) => {
+    if (!snap.exists()) return;
+    const updated = snap.val();
+    if (updated.status !== req.status) {
+      req.status = updated.status;
+      renderLookupResult(fbKey, req, code);
+    }
+  });
+}
+
+window.goBackFromLookup = function() {
+  if (document.getElementById('screen-progress').classList.contains('active-before-lookup')) {
+    showScreen('screen-progress');
+  } else {
+    showScreen('screen-welcome');
+  }
+};
+
+// ── Reset ─────────────────────────────────────────────
+window.resetAndGoHome = function() {
+  quantities = {};
+  document.getElementById('remarkInput').value = '';
+  renderCategories();
+  updateSummary();
+  showScreen('screen-main');
+  window.scrollTo(0,0);
+};
+
+// Init
+applyI18n();
+</script>
+</body>
+</html>
