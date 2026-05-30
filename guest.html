@@ -507,6 +507,33 @@
     display: block;
   }
 
+  .item-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .badge-deposit {
+    font-size: 10px;
+    background: rgba(232,169,74,0.12);
+    border: 1px solid rgba(232,169,74,0.35);
+    color: #C8882A;
+    border-radius: 8px;
+    padding: 2px 7px;
+    line-height: 1.4;
+  }
+
+  .badge-tag {
+    font-size: 10px;
+    background: rgba(74,124,89,0.1);
+    border: 1px solid rgba(74,124,89,0.3);
+    color: #3A7A52;
+    border-radius: 8px;
+    padding: 2px 7px;
+    line-height: 1.4;
+  }
+
   .qty-control {
     display: flex;
     align-items: center;
@@ -1643,11 +1670,40 @@ window.renderCategories = function() {
         ${items.map(item => {
           const itemName = currentLang==='zh' ? item.nameZh : currentLang==='en' ? item.nameEn : item.nameJa;
           const qty = quantities[item.id] || 0;
+
+          // 押金 badge
+          let depositBadge = '';
+          if (item.depositRequired) {
+            const depositLabel = {
+              zh: item.depositAmount ? `需押金 NT$${item.depositAmount}` : '需押金',
+              en: item.depositAmount ? `Deposit NT$${item.depositAmount}` : 'Deposit Required',
+              ja: item.depositAmount ? `デポジット NT$${item.depositAmount}` : 'デポジット必要',
+            }[currentLang];
+            depositBadge = `<span class="badge-deposit">💰 ${depositLabel}</span>`;
+          }
+
+          // 標籤 badges
+          const tagLabels = {
+            '習慣睡姿為平躺者': { en: 'Back Sleeper', ja: '仰向き派' },
+            '習慣睡姿為側躺者': { en: 'Side Sleeper', ja: '横向き派' },
+            '抗過敏': { en: 'Hypoallergenic', ja: '低アレルゲン' },
+          };
+          const tagBadges = (item.tags || []).map(tag => {
+            const label = currentLang === 'zh' ? tag
+              : currentLang === 'en' ? (tagLabels[tag]?.en || tag)
+              : (tagLabels[tag]?.ja || tag);
+            return `<span class="badge-tag">🏷 ${label}</span>`;
+          }).join('');
+
+          const badges = depositBadge || tagBadges
+            ? `<div class="item-badges">${depositBadge}${tagBadges}</div>` : '';
+
           return `
             <div class="item-card ${qty > 0 ? 'selected' : ''}" id="card_${item.id}">
               <div class="selected-dot"></div>
               <span class="item-icon">${item.icon || '📦'}</span>
               <div class="item-name">${itemName}</div>
+              ${badges}
               <div class="qty-control">
                 <button class="qty-btn minus" onclick="changeQty('${item.id}', -1)">−</button>
                 <span class="qty-num" id="qty_${item.id}">${qty}</span>

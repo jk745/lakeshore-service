@@ -436,6 +436,125 @@
 
   @keyframes toastIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
+  /* ITEM DETAIL PANEL */
+  .item-detail-panel {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(201,169,110,0.1);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 6px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .detail-field { display: flex; flex-direction: column; gap: 5px; }
+  .detail-field label { font-size: 10px; letter-spacing: 0.12em; color: var(--text-dim); text-transform: uppercase; }
+
+  .deposit-row { display: flex; align-items: center; gap: 8px; }
+  .deposit-checkbox { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .deposit-checkbox input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--gold); }
+  .deposit-amount-wrap { display: flex; align-items: center; gap: 4px; flex: 1; }
+  .deposit-amount-wrap span { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .deposit-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--gold);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .deposit-input:focus { border-color: rgba(201,169,110,0.4); }
+  .deposit-input:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .preset-tag {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .preset-tag.selected {
+    background: rgba(201,169,110,0.15);
+    border-color: rgba(201,169,110,0.4);
+    color: var(--gold);
+  }
+  .custom-tag-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--text);
+    font-family: inherit;
+    outline: none;
+    width: 120px;
+    transition: border-color 0.15s;
+  }
+  .custom-tag-input:focus { border-color: rgba(201,169,110,0.3); }
+  .custom-tag-input::placeholder { color: rgba(255,255,255,0.2); }
+
+  /* 備品列表：原本 table 改為 card list */
+  .item-card-list { display: flex; flex-direction: column; gap: 8px; }
+  .item-row-card {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .item-row-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .item-row-main input[type="text"] { flex: 1; }
+  .item-expand-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .item-expand-btn:hover { border-color: rgba(201,169,110,0.3); color: var(--gold); }
+  .item-expand-btn.has-data { border-color: rgba(201,169,110,0.3); color: var(--gold); background: rgba(201,169,110,0.06); }
+
+  .deposit-badge {
+    font-size: 10px;
+    background: rgba(232,169,74,0.15);
+    border: 1px solid rgba(232,169,74,0.3);
+    color: #E8A94A;
+    border-radius: 10px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tag-badge {
+    font-size: 10px;
+    background: rgba(91,155,213,0.1);
+    border: 1px solid rgba(91,155,213,0.25);
+    color: #5B9BD5;
+    border-radius: 10px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   /* CLEAN MODAL */
   .clean-modal-overlay {
     display: none;
@@ -763,25 +882,13 @@ function renderCatEditor(catId) {
         </div>
       </div>
 
-      <!-- Items Table -->
+      <!-- Items List -->
       <div class="items-table-wrap">
-        <table class="items-table">
-          <thead>
-            <tr>
-              <th style="width:30px"></th>
-              <th style="width:50px">圖示</th>
-              <th>中文名稱</th>
-              <th>English</th>
-              <th>日本語</th>
-              <th style="width:40px"></th>
-            </tr>
-          </thead>
-          <tbody id="itemsBody">
-            ${items.map(([itemId, item]) => renderItemRow(catId, itemId, item)).join('')}
-          </tbody>
-        </table>
+        <div class="item-card-list" id="itemsBody">
+          ${items.map(([itemId, item]) => renderItemRow(catId, itemId, item)).join('')}
+        </div>
 
-        <div class="add-item-row">
+        <div class="add-item-row" style="margin-top:14px">
           <input type="text" id="newItemIcon" placeholder="🧴" class="icon-input" maxlength="2" style="width:52px;flex:none">
           <input type="text" id="newItemZh" placeholder="備品名稱（中文）">
           <input type="text" id="newItemEn" placeholder="Item Name (EN)">
@@ -793,20 +900,106 @@ function renderCatEditor(catId) {
   `;
 }
 
+const PRESET_TAGS = ['習慣睡姿為平躺者', '習慣睡姿為側躺者', '抗過敏'];
+
 function renderItemRow(catId, itemId, item) {
-  return `<tr id="row_${catId}_${itemId}">
-    <td><span class="drag-handle">⋮⋮</span></td>
-    <td><input type="text" class="icon-input" value="${item.icon || ''}" maxlength="2"
-      oninput="updateItemField('${catId}','${itemId}','icon',this.value)" style="width:44px"></td>
-    <td><input type="text" value="${item.nameZh || ''}"
-      oninput="updateItemField('${catId}','${itemId}','nameZh',this.value)"></td>
-    <td><input type="text" value="${item.nameEn || ''}"
-      oninput="updateItemField('${catId}','${itemId}','nameEn',this.value)"></td>
-    <td><input type="text" value="${item.nameJa || ''}"
-      oninput="updateItemField('${catId}','${itemId}','nameJa',this.value)"></td>
-    <td><button class="del-item-btn" onclick="deleteItem('${catId}','${itemId}')">✕</button></td>
-  </tr>`;
+  const hasDeposit = item.depositRequired;
+  const depositAmt = item.depositAmount || '';
+  const tags = item.tags || [];
+  const customTag = tags.filter(t => !PRESET_TAGS.includes(t)).join('、');
+  const hasExtra = hasDeposit || tags.length > 0;
+
+  const depositBadge = hasDeposit
+    ? `<span class="deposit-badge">💰 押金${depositAmt ? ' NT$' + depositAmt : ''}</span>` : '';
+  const tagBadges = tags.map(t => `<span class="tag-badge">🏷 ${t}</span>`).join('');
+
+  const panelId = `panel_${catId}_${itemId}`;
+
+  return `<div class="item-row-card" id="row_${catId}_${itemId}">
+    <div class="item-row-main">
+      <span class="drag-handle">⋮⋮</span>
+      <input type="text" class="icon-input" value="${item.icon || ''}" maxlength="2"
+        oninput="updateItemField('${catId}','${itemId}','icon',this.value)" style="width:44px;flex:none">
+      <input type="text" value="${item.nameZh || ''}"
+        oninput="updateItemField('${catId}','${itemId}','nameZh',this.value)" placeholder="中文名稱">
+      <input type="text" value="${item.nameEn || ''}"
+        oninput="updateItemField('${catId}','${itemId}','nameEn',this.value)" placeholder="English">
+      <input type="text" value="${item.nameJa || ''}"
+        oninput="updateItemField('${catId}','${itemId}','nameJa',this.value)" placeholder="日本語">
+      ${depositBadge}${tagBadges}
+      <button class="item-expand-btn ${hasExtra ? 'has-data' : ''}"
+        onclick="toggleItemPanel('${panelId}')">⚙ 進階設定</button>
+      <button class="del-item-btn" onclick="deleteItem('${catId}','${itemId}')">✕</button>
+    </div>
+    <div class="item-detail-panel" id="${panelId}" style="display:none">
+      <!-- 押金設定 -->
+      <div class="detail-field">
+        <label>💰 押金設定</label>
+        <div class="deposit-row">
+          <label class="deposit-checkbox">
+            <input type="checkbox" ${hasDeposit ? 'checked' : ''}
+              onchange="toggleDeposit('${catId}','${itemId}',this.checked,'${panelId}')">
+            需押金
+          </label>
+          <div class="deposit-amount-wrap">
+            <span>NT$</span>
+            <input type="number" class="deposit-input" id="dep_${catId}_${itemId}"
+              value="${depositAmt}" placeholder="金額（可留空）"
+              ${hasDeposit ? '' : 'disabled'}
+              oninput="updateItemField('${catId}','${itemId}','depositAmount',this.value ? parseInt(this.value) : null)">
+          </div>
+        </div>
+      </div>
+      <!-- 適合族群標籤 -->
+      <div class="detail-field">
+        <label>🏷 適合族群標籤</label>
+        <div class="tags-wrap">
+          ${PRESET_TAGS.map(tag => `
+            <span class="preset-tag ${tags.includes(tag) ? 'selected' : ''}"
+              onclick="toggleTag('${catId}','${itemId}','${tag}',this)">${tag}</span>
+          `).join('')}
+          <input type="text" class="custom-tag-input" placeholder="自訂標籤…"
+            value="${customTag}"
+            onchange="updateCustomTag('${catId}','${itemId}',this.value)">
+        </div>
+      </div>
+    </div>
+  </div>`;
 }
+
+window.toggleItemPanel = function(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'none' ? 'grid' : 'none';
+};
+
+window.toggleDeposit = function(catId, itemId, checked, panelId) {
+  updateItemField(catId, itemId, 'depositRequired', checked);
+  const input = document.getElementById(`dep_${catId}_${itemId}`);
+  if (input) input.disabled = !checked;
+  // 更新 badge
+  setTimeout(() => { if (selectedCatId) renderCatEditor(selectedCatId); }, 800);
+};
+
+window.toggleTag = function(catId, itemId, tag, el) {
+  el.classList.toggle('selected');
+  // 重新收集所有已選的 preset tags
+  const panel = el.closest('.item-detail-panel');
+  const selectedPresets = Array.from(panel.querySelectorAll('.preset-tag.selected')).map(t => t.textContent);
+  const customInput = panel.querySelector('.custom-tag-input');
+  const customTags = customInput.value.trim() ? customInput.value.split('、').map(t => t.trim()).filter(Boolean) : [];
+  const allTags = [...selectedPresets, ...customTags.filter(t => !PRESET_TAGS.includes(t))];
+  debouncedSave(`categories/${catId}/items/${itemId}/tags`, allTags.length ? allTags : null);
+};
+
+window.updateCustomTag = function(catId, itemId, val) {
+  const panel = document.getElementById(`row_${catId}_${itemId}`)?.querySelector('.item-detail-panel');
+  if (!panel) return;
+  const selectedPresets = Array.from(panel.querySelectorAll('.preset-tag.selected')).map(t => t.textContent);
+  const customTags = val.trim() ? val.split('、').map(t => t.trim()).filter(Boolean) : [];
+  const allTags = [...selectedPresets, ...customTags.filter(t => !PRESET_TAGS.includes(t))];
+  debouncedSave(`categories/${catId}/items/${itemId}/tags`, allTags.length ? allTags : null);
+};
 
 // ── Debounced Save ─────────────────────────────────────
 let saveTimers = {};
