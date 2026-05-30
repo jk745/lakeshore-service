@@ -558,6 +558,7 @@
     <button class="download-btn" onclick="openDownloadModal()">
       ⬇ 下載服務記錄
     </button>
+    <div id="osSysHint" style="font-size:10px;color:rgba(255,255,255,0.2);padding:8px 4px 0;line-height:1.5;letter-spacing:0.03em;"></div>
   </div>
 </div>
 
@@ -665,6 +666,18 @@ function updateTime() {
 setInterval(updateTime, 1000);
 updateTime();
 
+// 顯示 OS 對應提示
+(function showOsHint() {
+  const el = document.getElementById('osSysHint');
+  if (!el) return;
+  const ua = navigator.userAgent.toUpperCase();
+  if (ua.includes('WIN')) {
+    el.textContent = '⚠ Windows：請確認系統「通知」與「勿擾模式」設定';
+  } else if (ua.includes('MAC')) {
+    el.textContent = '⚠ Mac：請確認系統「通知」已允許 Chrome';
+  }
+})();
+
 // ── Sound ─────────────────────────────────────────────
 function toggleSound() {
   // AudioContext 必須在使用者互動時建立
@@ -697,26 +710,98 @@ function playAlert() {
 // ── Notifications ─────────────────────────────────────
 function requestNotify() {
   if (!('Notification' in window)) { alert('此瀏覽器不支援推播通知'); return; }
+
+  // 偵測作業系統
+  const isMac = navigator.platform.toUpperCase().includes('MAC') ||
+                navigator.userAgent.toUpperCase().includes('MAC');
+  const isWin = navigator.platform.toUpperCase().includes('WIN') ||
+                navigator.userAgent.toUpperCase().includes('WIN');
+
+  const sysHint = isMac
+    ? 'Mac 請確認：系統設定 → 通知 → Google Chrome → 已開啟'
+    : isWin
+    ? 'Windows 請確認：系統設定 → 系統 → 通知 → Google Chrome → 已開啟'
+    : '請確認系統通知權限已允許 Google Chrome';
+
+  const deniedMsg = isMac
+    ? '通知已被封鎖。\n\n請到 Chrome 網址列左側的鎖頭圖示 → 通知 → 允許，\n或在 Mac 系統設定 → 通知 → Google Chrome 中開啟。'
+    : isWin
+    ? '通知已被封鎖。\n\n請到 Chrome 網址列左側的鎖頭圖示 → 通知 → 允許，\n或在 Windows 系統設定 → 系統 → 通知 → Google Chrome 中開啟。\n\n另請確認 Windows 勿擾模式已關閉。'
+    : '通知已被封鎖，請到 Chrome 設定中允許通知權限。';
+
   Notification.requestPermission().then(perm => {
     if (perm === 'granted') {
       document.getElementById('notifyBtn').textContent = '✅ 推播通知已啟用';
       document.getElementById('notifyBtn').style.opacity = '0.6';
       document.getElementById('notifyBtn').style.cursor = 'default';
-      new Notification('✅ 推播通知已啟用', { body: '有新的服務需求時，您將收到通知', icon: '' });
+      try {
+        new Notification('✅ 推播通知已啟用', {
+          body: sysHint,
+          requireInteraction: false,
+          tag: 'setup-test-' + Date.now(),
+        });
+      } catch(e) {}
+    } else if (perm === 'denied') {
+      alert(deniedMsg);
     } else {
       alert('請允許通知權限以接收新需求提醒');
     }
   });
-};
+}
 
 function sendNotification(req) {
+  const prefix = getBuildingPrefix(req.building);
+  const roomLabel = `${prefix}${req.room}`;
+  const items = req.items.map(i => `${i.nameZh || i.nameEn || i.nameJa || '未知備品'}×${i.qty}`).join('、');
+  const building = req.buildingZh || '';
+
   if (Notification.permission === 'granted') {
-    const items = req.items.map(i => `${i.nameZh || i.nameEn || i.nameJa || '未知備品'}×${i.qty}`).join('、');
-    const building = req.buildingZh || '';
-    new Notification(`🔔 ${building} ${req.room} 號房 有新需求`, { body: items, tag: 'guest-service' });
+    // 每筆用唯一 tag，避免 Mac 上通知被靜默覆蓋
+    const tag = 'req-' + Date.now();
+    try {
+      new Notification(`🔔 ${building} ${roomLabel} 號房 新需求`, {
+        body: items,
+        tag: tag,
+        requireInteraction: true,
+        silent: false,
+      });
+    } catch(e) {
+      // requireInteraction 不支援時改用基本通知
+      try {
+        new Notification(`🔔 ${building} ${roomLabel} 號房 新需求`, { body: items, tag: tag });
+      } catch(e2) { console.warn('Notification error:', e2); }
+    }
   }
+
   if (soundEnabled) playAlert();
+  flashTitle(roomLabel);
   showToast(req);
+}
+
+// 頁面標題閃爍（瀏覽器縮小時任務列可見）
+let flashInterval = null;
+function flashTitle(roomLabel) {
+  clearInterval(flashInterval);
+  const original = '服務派單中心 | Lakeshore Hotel';
+  let toggle = true;
+  let count = 0;
+  flashInterval = setInterval(() => {
+    document.title = toggle ? `🔔 ${roomLabel} 號房 新需求！` : original;
+    toggle = !toggle;
+    count++;
+    if (count >= 20) {
+      clearInterval(flashInterval);
+      document.title = original;
+    }
+  }, 600);
+  // 使用者切回分頁時停止閃爍
+  document.addEventListener('visibilitychange', function stopFlash() {
+    if (!document.hidden) {
+      clearInterval(flashInterval);
+      document.title = original;
+      document.removeEventListener('visibilitychange', stopFlash);
+    }
+  });
 }
 
 function showToast(req) {
