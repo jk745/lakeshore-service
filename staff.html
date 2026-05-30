@@ -54,7 +54,7 @@
   }
 
   .sidebar-logo .en {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 15px;
     color: var(--gold);
     letter-spacing: 0.05em;
@@ -97,9 +97,9 @@
   .stat-label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; }
 
   .stat-value {
-    font-size: 18px;
-    font-weight: 700;
-    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 900;
+    font-family: 'Noto Sans TC', sans-serif;
   }
 
   .stat-value.pending { color: var(--pending); }
@@ -215,10 +215,10 @@
   }
 
   .topbar-title {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 22px;
     color: var(--gold);
-    font-weight: 400;
+    font-weight: 700;
   }
 
   .topbar-right { display: flex; align-items: center; gap: 12px; }
@@ -283,18 +283,20 @@
     background: var(--gold-dim);
     border: 1px solid rgba(201,169,110,0.3);
     color: var(--gold);
-    font-size: 16px;
-    font-weight: 700;
-    font-family: 'Cormorant Garamond', serif;
-    padding: 4px 12px;
+    font-size: 22px;
+    font-weight: 900;
+    font-family: 'Noto Sans TC', sans-serif;
+    padding: 6px 16px;
     border-radius: 8px;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    min-width: 72px;
+    text-align: center;
   }
 
   .req-meta { flex: 1; }
 
   .req-time {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-dim);
     margin-bottom: 2px;
   }
@@ -331,8 +333,9 @@
     background: var(--card2);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 4px 10px;
-    font-size: 12px;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--text);
     display: flex;
     align-items: center;
@@ -460,7 +463,7 @@
     max-width: 90vw;
   }
   .dl-modal-title {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Noto Sans TC', sans-serif;
     font-size: 20px;
     color: var(--gold);
     margin-bottom: 18px;
@@ -708,7 +711,7 @@ function requestNotify() {
 
 function sendNotification(req) {
   if (Notification.permission === 'granted') {
-    const items = req.items.map(i => `${i.nameZh}×${i.qty}`).join('、');
+    const items = req.items.map(i => `${i.nameZh || i.nameEn || i.nameJa || '未知備品'}×${i.qty}`).join('、');
     const building = req.buildingZh || '';
     new Notification(`🔔 ${building} ${req.room} 號房 有新需求`, { body: items, tag: 'guest-service' });
   }
@@ -744,6 +747,11 @@ db.ref('requests').on('value', (snap) => {
 });
 
 // ── Render ─────────────────────────────────────────────
+function getBuildingPrefix(building) {
+  const map = { tranquil: 'A', moment: 'B', serenity: 'C' };
+  return map[building] || '';
+}
+
 function renderRequests() {
   const list = document.getElementById('requestsList');
   let entries = Object.entries(allRequests).map(([id, r]) => ({ id, ...r }));
@@ -769,7 +777,7 @@ function renderRequests() {
 
     const items = (req.items || []).map(item => `
       <div class="item-chip">
-        ${item.nameZh} <span class="qty">×${item.qty}</span>
+        ${item.nameZh || item.nameEn || item.nameJa || item.id || '未知備品'} <span class="qty">×${item.qty}</span>
       </div>`).join('');
 
     const remark = req.remark ? `<div class="remark-box">💬 ${req.remark}</div>` : '';
@@ -785,7 +793,7 @@ function renderRequests() {
     return `
       <div class="req-card" id="req_${req.id}">
         <div class="req-card-header">
-          <div class="room-tag">${req.room}</div>
+          <div class="room-tag">${getBuildingPrefix(req.building)}${req.room}</div>
           <div class="req-meta">
             <div class="req-time">${req.buildingZh ? `🏨 ${req.buildingZh}` : ''} 📅 ${timeStr}</div>
             <div class="req-elapsed">⏱ ${elapsed}</div>
@@ -864,7 +872,7 @@ function doDownload() {
       const refId = r.id.slice(-6).toUpperCase();
       const building = r.buildingZh || buildingMap[r.building] || r.building || '';
       const status = statusLabel[r.status] || r.status;
-      const items = (r.items || []).map(i => `${i.nameZh}×${i.qty}`).join('、');
+      const items = (r.items || []).map(i => `${i.nameZh || i.nameEn || i.nameJa || '未知備品'}×${i.qty}`).join('、');
       const remark = (r.remark || '').replace(/,/g, '，');
       const createdAt = new Date(r.createdAt).toLocaleString('zh-TW', { hour12:false });
       const updatedAt = r.updatedAt ? new Date(r.updatedAt).toLocaleString('zh-TW', { hour12:false }) : '—';
@@ -886,7 +894,7 @@ function doDownload() {
       const refId = r.id.slice(-6).toUpperCase();
       const building = r.buildingZh || buildingMap[r.building] || '';
       const status = statusLabel[r.status] || r.status;
-      const items = (r.items || []).map(i => `${i.nameZh}×${i.qty}`).join('、');
+      const items = (r.items || []).map(i => `${i.nameZh || i.nameEn || i.nameJa || '未知備品'}×${i.qty}`).join('、');
       const createdAt = new Date(r.createdAt).toLocaleString('zh-TW', { hour12:false });
       lines.push(`#${i+1}  單號：${refId}`);
       lines.push(`    館別：${building}　房號：${r.room}　狀態：${status}`);
